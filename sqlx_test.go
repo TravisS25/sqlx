@@ -1814,3 +1814,42 @@ func BenchmarkRebindBuffer(b *testing.B) {
 		rebindBuff(DOLLAR, q2)
 	}
 }
+
+func TestMapScanMultiLvl(t *testing.T) {
+	RunWithSchema(defaultSchema, t, func(db *DB, t *testing.T) {
+		loadDefaultFixture(db, t)
+
+	})
+}
+
+func TestCrawl(t *testing.T) {
+	RunWithSchema(defaultSchema, t, func(db *DB, t *testing.T) {
+		loadDefaultFixture(db, t)
+
+		rows, err := db.Queryx(
+			`
+			select
+				person.email,
+				person.first_name as "lvl1.first_name",
+				person.first_name as "lvl1.lvl2.first_name"
+			from
+				person
+			`,
+		)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		var columns []string
+		var values []interface{}
+
+		for rows.Next() {
+			columns, values, err = scanColVals(rows)
+
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+	})
+}
