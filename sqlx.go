@@ -595,11 +595,7 @@ func (r *Rows) MapScan(dest map[string]interface{}) error {
 	return MapScan(r, dest)
 }
 
-// MapScanMultiLvl using this Rows
-// func (r *Rows) MapScanMultiLvl(dest map[string]interface{}, camelCaseColumns bool) error {
-// 	return MapScanMultiLvl(r, dest, camelCaseColumns)
-// }
-
+// MapScanMultiLvl using this Rows.
 func (r *Rows) MapScanMultiLvl(dest map[string]interface{}) error {
 	return MapScanMultiLvl(r, dest)
 }
@@ -748,10 +744,6 @@ func (r *Row) MapScan(dest map[string]interface{}) error {
 }
 
 // MapScanMultiLvl using this Rows
-// func (r *Row) MapScanMultiLvl(dest map[string]interface{}, camelCaseColumns bool) error {
-// 	return MapScanMultiLvl(r, dest, camelCaseColumns)
-// }
-
 func (r *Row) MapScanMultiLvl(dest map[string]interface{}) error {
 	return MapScanMultiLvl(r, dest)
 }
@@ -872,119 +864,7 @@ func MapScan(r ColScanner, dest map[string]interface{}) error {
 //
 // If you want multiple layer structure, column names should be seperated with
 // a "." for every layer that you want which can be accomplished using the "as"
-// clause in you sql
-//
-// jsonifyColumns will convert column names from snake to camel case where the
-// first letter will be lower case and the rest of the word will be camel case if set
-// func MapScanMultiLvl(r ColScanner, dest map[string]interface{}, jsonifyColumns bool) error {
-// 	columns, values, err := scanColVals(r)
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	// getInnerMap takes in colMap and colWords and gets the inner most map and returns it
-// 	getInnerMap := func(colMap map[string]interface{}, colWords []string) map[string]interface{} {
-// 		innerMap := colMap[colWords[0]].(map[string]interface{})
-
-// 		for i := 1; i < len(colWords); i++ {
-// 			if i != len(colWords)-1 {
-// 				innerMap = innerMap[colWords[i]].(map[string]interface{})
-// 			}
-// 		}
-
-// 		return innerMap
-// 	}
-
-// 	// getColName returns column name formated based on jsonifyColumns parameter
-// 	getColName := func(colWord string) string {
-// 		var c string
-
-// 		if jsonifyColumns {
-// 			if snaker.IsInitialism(colWord) {
-// 				c = strings.ToLower(colWord)
-// 			} else {
-// 				tmp := snaker.SnakeToCamel(colWord)
-
-// 				if len(tmp) > 1 {
-// 					c = strings.ToLower(string(tmp[0])) + tmp[1:]
-// 				} else {
-// 					c = strings.ToLower(string(tmp[0]))
-// 				}
-// 			}
-// 		} else {
-// 			c = colWord
-// 		}
-
-// 		return c
-// 	}
-
-// 	// crawlMap is recursive function that will take in column slice and
-// 	// build against map[string]interface{} passed
-// 	var crawlMap func(map[string]interface{}, interface{}, []string, int)
-
-// 	crawlMap = func(colMap map[string]interface{}, value interface{}, colWords []string, startIdx int) {
-// 		for i := startIdx; i < len(colWords); i++ {
-// 			colWords[i] = getColName(colWords[i])
-
-// 			if _, ok := colMap[colWords[i]]; ok {
-// 				// If column name is already apart of map but we are not at the end
-// 				// of colWords slice, continue crawling
-// 				//
-// 				// Else we have reached the actual column name so attach passed
-// 				// value to column name in map
-// 				if i != len(colWords)-1 {
-// 					//fmt.Printf("point 1\n")
-// 					crawlMap(colMap, value, colWords, i+1)
-// 				} else {
-// 					//fmt.Printf("point 2\n")
-// 					innerMap := getInnerMap(colMap, colWords)
-// 					innerMap[colWords[i]] = value
-// 					//fmt.Printf("some map: %v\n", innerMap)
-// 				}
-// 			} else {
-// 				if i != len(colWords)-1 {
-// 					// If column name is not in map and we have not reached
-// 					// the end of colWords slice, then we create a new
-// 					// map[string]interface{} entry into our colMap variable
-// 					// with current column name creating a new "level"
-// 					// and continue crawling map
-// 					//
-// 					// Else current column name is actual column that we can
-// 					// add to map and attach passed value
-// 					if i == 0 {
-// 						//fmt.Printf("point 3\n")
-// 						colMap[colWords[i]] = make(map[string]interface{})
-// 					} else {
-// 						//fmt.Printf("point 4\n")
-// 						prevMap := colMap[colWords[i-1]].(map[string]interface{})
-// 						prevMap[colWords[i]] = make(map[string]interface{})
-// 					}
-
-// 					crawlMap(colMap, value, colWords, i+1)
-// 				} else {
-// 					//fmt.Printf("point 5\n")
-// 					innerMap := getInnerMap(colMap, colWords)
-// 					innerMap[colWords[i]] = value
-// 					//fmt.Printf("some map: %v\n", innerMap)
-// 				}
-// 			}
-// 		}
-// 	}
-
-// 	for i, column := range columns {
-// 		colWords := strings.Split(column, ".")
-
-// 		if len(colWords) == 1 {
-// 			dest[getColName(column)] = *(values[i].(*interface{}))
-// 		} else {
-// 			crawlMap(dest, *(values[i].(*interface{})), colWords, 0)
-// 		}
-// 	}
-
-// 	return r.Err()
-// }
-
+// clause in your sql
 func MapScanMultiLvl(r ColScanner, dest map[string]interface{}) error {
 	columns, values, err := scanColVals(r)
 
@@ -994,75 +874,56 @@ func MapScanMultiLvl(r ColScanner, dest map[string]interface{}) error {
 
 	// getInnerMap takes in colMap and colWords and gets the inner most map and returns it
 	getInnerMap := func(colMap map[string]interface{}, colWords []string) map[string]interface{} {
-		innerMap := colMap[colWords[0]].(map[string]interface{})
+		if len(colWords) == 0 {
+			return nil
+		}
 
-		for i := 1; i < len(colWords); i++ {
-			if i != len(colWords)-1 {
+		var innerMap map[string]interface{}
+
+		for i := 0; i < len(colWords); i++ {
+			// fmt.Printf("current inner map: %v\n", innerMap)
+			// fmt.Printf("current val: %v\n", innerMap[colWords[i]])
+
+			if i == 0 {
+				innerMap = colMap[colWords[i]].(map[string]interface{})
+			} else {
 				innerMap = innerMap[colWords[i]].(map[string]interface{})
 			}
+
+			//fmt.Printf("current col word: %v\n", colWords[i])
+			// fmt.Printf("current inner map: %v\n", innerMap)
+			// fmt.Printf("current val: %v\n", innerMap[colWords[i]])
+			//innerMap = innerMap[colWords[i]].(map[string]interface{})
 		}
 
 		return innerMap
 	}
 
-	// crawlMap is recursive function that will take in column slice and
-	// build against map[string]interface{} passed
-	var crawlMap func(map[string]interface{}, interface{}, []string, int)
+	for i := range columns {
+		colWords := strings.Split(columns[i], ".")
 
-	crawlMap = func(colMap map[string]interface{}, value interface{}, colWords []string, startIdx int) {
-		for i := startIdx; i < len(colWords); i++ {
-			if _, ok := colMap[colWords[i]]; ok {
-				// If column name is already apart of map but we are not at the end
-				// of colWords slice, continue crawling
-				//
-				// Else we have reached the actual column name so attach passed
-				// value to column name in map
-				if i != len(colWords)-1 {
-					//fmt.Printf("point 1\n")
-					crawlMap(colMap, value, colWords, i+1)
+		for idx := range colWords {
+			if idx == len(colWords)-1 {
+				innerMap := getInnerMap(dest, colWords[:idx])
+
+				if innerMap == nil {
+					dest[colWords[idx]] = *(values[i].(*interface{}))
 				} else {
-					//fmt.Printf("point 2\n")
-					innerMap := getInnerMap(colMap, colWords)
-					innerMap[colWords[i]] = value
-					//fmt.Printf("some map: %v\n", innerMap)
+					innerMap[colWords[idx]] = *(values[i].(*interface{}))
 				}
 			} else {
-				if i != len(colWords)-1 {
-					// If column name is not in map and we have not reached
-					// the end of colWords slice, then we create a new
-					// map[string]interface{} entry into our colMap variable
-					// with current column name creating a new "level"
-					// and continue crawling map
-					//
-					// Else current column name is actual column that we can
-					// add to map and attach passed value
-					if i == 0 {
-						//fmt.Printf("point 3\n")
-						colMap[colWords[i]] = make(map[string]interface{})
-					} else {
-						//fmt.Printf("point 4\n")
-						prevMap := colMap[colWords[i-1]].(map[string]interface{})
-						prevMap[colWords[i]] = make(map[string]interface{})
-					}
+				innerMap := getInnerMap(dest, colWords[:idx])
 
-					crawlMap(colMap, value, colWords, i+1)
+				if innerMap == nil {
+					if _, ok := dest[colWords[idx]]; !ok {
+						dest[colWords[idx]] = make(map[string]interface{})
+					}
 				} else {
-					//fmt.Printf("point 5\n")
-					innerMap := getInnerMap(colMap, colWords)
-					innerMap[colWords[i]] = value
-					//fmt.Printf("some map: %v\n", innerMap)
+					if _, ok := innerMap[colWords[idx]]; !ok {
+						innerMap[colWords[idx]] = make(map[string]interface{})
+					}
 				}
 			}
-		}
-	}
-
-	for i, column := range columns {
-		colWords := strings.Split(column, ".")
-
-		if len(colWords) == 1 {
-			dest[column] = *(values[i].(*interface{}))
-		} else {
-			crawlMap(dest, *(values[i].(*interface{})), colWords, 0)
 		}
 	}
 

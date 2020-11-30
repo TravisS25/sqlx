@@ -1841,15 +1841,18 @@ func TestCrawl(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		var columns []string
-		var values []interface{}
+		list := make([]map[string]interface{}, 0)
 
 		for rows.Next() {
-			columns, values, err = scanColVals(rows)
+			dest := make(map[string]interface{})
 
-			if err != nil {
-				t.Fatal(err)
+			if err = rows.MapScanMultiLvl(dest); err != nil {
+				t.Fatalf("err: %s", err.Error())
 			}
+
+			list = append(list, dest)
 		}
+
+		t.Errorf("list: %v\n", list)
 	})
 }
